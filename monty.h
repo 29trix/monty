@@ -1,11 +1,10 @@
-#ifndef MONTY_H
-#define MONTY_H
+#ifndef _MONTY_H_
+#define _MONTY_H_
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
-
-#define DELIMATOR "\n\t\r "
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
  * @n: integer
@@ -14,7 +13,7 @@
  *
  * Description: doubly linked list node structure
  * for stack, queues, LIFO, FIFO Holberton project
- **/
+ */
 typedef struct stack_s
 {
 	int n;
@@ -29,30 +28,48 @@ typedef struct stack_s
  *
  * Description: opcode and its function
  * for stack, queues, LIFO, FIFO Holberton project
- **/
+ */
 typedef struct instruction_s
 {
 	char *opcode;
 	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
-
 /**
-* struct global_s - hold global variables
-* @return_val: return value
-* @mol: mode of list
-* @cc: code command
-* @apc: push command
-**/
+ * struct globalvariables - global struct of variables
+ * @num: value of node
+ * @line: line from getline
+ * @mfile: textfile
+ * @stack: pointer to the head of stack_t
+ * @filename: file name string
+ * @token: token
+ *
+ * Description: variables to share between functions
+ */
+typedef struct globalvariables
+{
+	int num;
+	char *line;
+	FILE *mfile;
+	stack_t *stack;
+	char *filename;
+	char *token;
+} gbv;
 
-extern instruction_t opcodes[];
-unsigned int len(stack_t **stack);
-void free_stack(stack_t *stack);
-void nop(stack_t **stack, unsigned int line_number);
-void pop(stack_t **stack, unsigned int line_number);
-void push(stack_t **stack, char *n, unsigned int line_number);
+extern gbv gv;
+
+void errorHandler(unsigned int errno, unsigned int line_number);
+void errorHandler2(unsigned int errno, unsigned int line_number);
+char *isNumber(char *value, unsigned int line_number);
+void compare(char *token, stack_t **stack, unsigned int line_number);
+void push(stack_t **stack, unsigned int line_number);
 void pall(stack_t **stack, unsigned int line_number);
 void pint(stack_t **stack, unsigned int line_number);
-int find_opcode(stack_t **stack, char *opcode, int line_number);
+void pop(stack_t **stack, unsigned int line_number);
 void swap(stack_t **stack, unsigned int line_number);
-size_t lol(stack_t *h);
+void add(stack_t **stack, unsigned int line_number);
+void nop(stack_t **stack, unsigned int line_number);
+
+void freeAll(void);
+void freeLinkedList(stack_t *stack);
+
 #endif

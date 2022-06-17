@@ -1,103 +1,69 @@
 #include "monty.h"
 
+gbv gv;
 
 /**
-* opcode_finder - find opcode
-* @stack: stack pointer
-* @opcode: user input opcode
-* @line_number: line number
-* Return: Always 1 (Success) or stderr
-**/
-int find_opcode(stack_t **stack, char *opcode, int line_number)
+* main - run the monty compiler
+* @argc: argument count
+* @argv: argument vector
+*
+* Return: always 0.
+*/
+int main(int argc, char **argv)
 {
-instruction_t opcodes[] = {
-{"pall", pall},
-{"pop", pop},
-{"swap", swap},
-{"pint", pint},
-{NULL, NULL}
-};
+	size_t len = 0;
+	unsigned int line_number = 0;
+	char *value;
 
-int i;
-
-for (i = 0; opcodes[i].opcode; i++)
-{
-if (strcmp(opcode, opcodes[i].opcode) == 0)
-{
-(opcodes[i].f)(stack, line_number);
-return (EXIT_SUCCESS);
+	gv.stack = NULL;
+	gv.mfile = NULL;
+	gv.line = NULL;
+	gv.token = NULL;
+	if (argc != 2)
+		errorHandler(2, line_number);
+	gv.filename = argv[1];
+	gv.mfile = fopen(argv[1], "r");
+	if (!gv.mfile)
+		errorHandler(3, line_number);
+	while (getline(&gv.line, &len, gv.mfile) != EOF)
+	{
+		line_number++;
+		gv.token = strtok(gv.line, " \t\n");
+		if (!gv.token)
+			continue;
+		if (strcmp(gv.token, "push") == 0)
+		{
+			value = strtok(NULL, " \t\n");
+			if (!value)
+				errorHandler(1, line_number);
+			gv.num = atoi(isNumber(value, line_number));
+		}
+		compare(gv.token, &gv.stack, line_number);
+		free(gv.line);
+		gv.line = NULL;
+	}
+	freeAll();
+	return (0);
 }
-}
-fprintf(stderr, "L%d: unknown instruction %s\n", line_number, opcode);
-exit(EXIT_FAILURE);
-}
-
-
 /**
-* main - Process Monty byte codes from a file passed in as an argument
-* @argc: size of argv
-* @argv: A double pointer contain the arguments
-* Return: EXIT_SUCCESS if no errors or EXIT_FAILURE
-**/
+* isNumber - check if a string is numerical
+* @value: string to check
+* @line_number: line of code
+*
+* Return: string, if numerical
+*/
+char *isNumber(char *value, unsigned int line_number)
+{
+	unsigned int i = 0;
 
-int main(__attribute__((unused)) int argc, char const *argv[])
-{
-FILE *mf;
-char *buff = NULL, *opcode, *n;
-size_t lol = 0;
-int line_number = 0;
-stack_t *stack = NULL, *current;
-
-if (argc != 2)
-{
-fprintf(stderr, "USAGE: monty file\n");
-return (EXIT_FAILURE);
-}
-mf = fopen(argv[1], "r");
-if (mf == NULL)
-{
-fprintf(stderr, "Error: can't open file %s\n", argv[1]);
-exit(1);
-}
-while ((getline(&buff, &lol, mf)) != -1)
-{
-line_number++;
-opcode = strtok(buff, DELIMATOR);
-if (opcode == NULL || opcode[0] == '#')
-continue;
-if (!strcmp(opcode, "nop"))
-continue;
-else if (!strcmp(opcode, "push"))
-{
-n = strtok(NULL, DELIMATOR);
-push(&stack, n, line_number);
-}
-else
-find_opcode(&stack, opcode, line_number);
-}
-fclose(mf);
-free(buff);
-while (stack != NULL)
-{
-current = stack;
-stack = stack->next;
-free(current);
-}
-return (0);
-}
-
-/**
-* free_stack - fff
-* @stack: fff
-**/
-void free_stack(stack_t *stack)
-{
-stack_t *next;
-
-while (stack != NULL)
-{
-next = stack->next;
-free(stack);
-stack = next;
-}
+	if ((value[i] < '0' || value[i] > '9') && value[i] != '-')
+		errorHandler(1, line_number);
+	i++;
+	while (value[i])
+	{
+		if (value[i] < '0' || value[i] > '9')
+			errorHandler(1, line_number);
+		i++;
+	}
+	return (value);
 }
