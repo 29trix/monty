@@ -1,21 +1,38 @@
 #include "monty.h"
+
 /**
-*pall - function to print stack's elements
-*@line_number: will not be used , we usse attribute not void
-*@stack: pointer to the head of the doubly linked list
-*Return: Nothing
-*/
+ * print_dlistint - function that prints all the elements of a dlist_t list.
+ * @h: list given
+ *
+ * Return: number of nodes
+ */
 
-void pall(stack_t **stack, unsigned int __attribute__((unused)) line_number)
+size_t print_dlistint(const dlistint_t *h)
 {
-stack_t *current = *stack;
+	int node = 0;
 
-if (stack == NULL || *stack == NULL)
-return;
+	if (h == NULL)
+		return (0);
 
-while (current != NULL)
-{
-printf("%d\n", current->n);
-current = current->next;
+	while (h != NULL)
+	{
+		printf("%d\n", h->n);
+		h = h->next;
+		node++;
+	}
+
+	return (node);
 }
+
+/**
+ * pall - prints all values on the stack, starting from top of stack.
+ * @stack: pointer to pointer to first node in list
+ * @line_number: number of line
+ * Return: void
+ */
+
+void pall(stack_t **stack, __attribute__((unused))unsigned int line_number)
+{
+	if (*stack != NULL)
+		print_dlistint(*stack);
 }

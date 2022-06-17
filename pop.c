@@ -1,28 +1,24 @@
 #include "monty.h"
+
 /**
- *pop - removes the last inserted element
- *@line_number: number of lines  in the file
- *@stack: pointer to the pointer to the head
- *Return: nothing
+ * pop - remove the first node in a stack_t doubly linked list
+ * @stack: a pointer to the head of the list
+ * @line_number: file line number opcode received from
+ * Return: Nothing
  */
-void pop(stack_t **stack, unsigned int line_number)
+void pop(stack_t **stack, __attribute__ ((unused)) unsigned int line_number)
 {
-stack_t *to_the_end;
-if (stack == NULL)
-{
-printf("L%u: can't pop an empty stack\n", line_number);
-exit(EXIT_FAILURE);
-}
-else if (*stack == NULL)
-{
-printf("L%u: can't pop an empty stack\n", line_number);
-exit(EXIT_FAILURE);
-}
-else
-{
-to_the_end = *stack;
-*stack = (*stack)->next;
-free(to_the_end);
-}
-return;
+	if (*stack == NULL)
+		error_handler(6, NULL);
+
+	if ((*stack)->next == NULL)
+	{
+		free((*stack));
+		*stack = NULL;
+		return;
+	}
+
+	*stack = (*stack)->next;
+	free((*stack)->prev);
+	(*stack)->prev = NULL;
 }
